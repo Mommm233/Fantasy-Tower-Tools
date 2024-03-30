@@ -74,6 +74,7 @@ class ControlFish:
 
             screen_img = self.fidentify.get_screen_img(active_window._rect)
             success, defeat, is_except, move_direction = self.fish.get(screen_img, time() - self.start_fish_time)
+            # print(f"prepare_fish: {self.fish.prepare_fish}, success: {success}, defeat: {defeat}, is_except: {is_except}, move_direction: {move_direction}")
             # print(success, defeat, is_except, move_direction)
             if is_except:
                 run_value.value = 0
@@ -91,7 +92,7 @@ class ControlFish:
                     press('1')
                     sleep(1)
                     click()
-                    sleep(0.5)
+                    sleep(1.5)
                     self.init()
                 elif defeat:
                     self.init()
@@ -143,7 +144,7 @@ class FIdentify(Identify):
 
     # 判断是否准备钓鱼
     def is_prepare_fish(self) -> bool:
-        return self.check(self.rects["prepare_fish"], self.signs["prepare_fish"])
+        return self.check(self.rects["prepare_fish"], self.signs["prepare_fish"], threshold=0.6)
     
     # 判断是否有鱼耐力
     def is_have_fish_tolerance(self) -> bool:

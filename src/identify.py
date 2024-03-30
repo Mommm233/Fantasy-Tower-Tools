@@ -10,7 +10,7 @@ class Identify:
         self.height, self.width, _ = screen_img.shape
 
     # 判断part是否出现在img里
-    def part_is_in_img(self, img:np.ndarray, part:np.ndarray, threshold=0.8) -> bool:
+    def part_is_in_img(self, img:np.ndarray, part:np.ndarray, threshold:int) -> bool:
         if img is None or part is None:
             return False
         if img.size == 0 or part.size == 0:
@@ -24,12 +24,12 @@ class Identify:
         else:
             return False
 
-    def check(self, rect:list, sign:np.ndarray) -> bool:
+    def check(self, rect:list, sign:np.ndarray, threshold=0.8) -> bool:
         [x, y, w, h] = rect
         img = self.screen_img[y:y+h, x:x+w]
         # cv2.imwrite("img.png", img)
         # cv2.imwrite("sign.png", sign)
-        return self.part_is_in_img(img, sign)
+        return self.part_is_in_img(img, sign, threshold)
 
     def get_screen_img(self, rect:pyrect.Rect) -> np.ndarray:
         screen_img = screenshot(region=(rect.left, rect.top, rect.width, rect.height))
