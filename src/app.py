@@ -326,5 +326,5 @@ if __name__ == '__main__':
     sys.exit(app.exec_())
 
 
-# pyinstaller --uac-admin --icon=img\\fle.jpg --name=幻塔小工具 ./src/app.py ./src/controlf.py ./src/controlfish.py ./src/identify.py --noconsole
+# pyinstaller --uac-admin --icon=img\\fle.jpg --name=幻塔小工具 ./src/app.py ./src/changeconfig.py ./src/controlf.py ./src/controlfish.py ./src/identify.py --noconsole
     
