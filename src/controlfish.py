@@ -90,7 +90,7 @@ class ControlFish:
                     keyUp('a')
                     keyUp('d')
                     press('1')
-                    sleep(1)
+                    sleep(1.5)
                     click()
                     sleep(1.5)
                     self.init()
