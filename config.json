@@ -1,0 +1,71 @@
+{
+    "title": "\u5e7b\u5854",
+    "game_path": "D:\\Game\\Hotta\\gameLauncher.exe",
+    "game_config_path": "C:\\Users\\wengym\\AppData\\Local\\Hotta\\Saved\\Config\\WindowsNoEditor\\GameUserSettings.ini",
+    "game_process_name": "WmgpMobileGame.exe",
+    "game_change_content": {
+        "RayTracingQuality": "Medium",
+        "RTPC_Sound_Master_Volume": "80",
+        "RTPC_Sound_Music_Volume": "80",
+        "RTPC_Sound_SFX_Volume": "80",
+        "bEnableShadow": "True",
+        "FullscreenMode": "1",
+        "FrameRateLimit": "144",
+        "WindowsAAType": "DLSS"
+    },
+    "ControlF": {
+        "rect": [
+            1380,
+            678,
+            550,
+            105
+        ],
+        "path": "img\\25601440\\shiqu1.png"
+    },
+    "ControlFish": {
+        "rects": {
+            "fish_sign": [
+                2330,
+                3,
+                232,
+                165
+            ],
+            "fish_bar": [
+                900,
+                105,
+                781,
+                10
+            ],
+            "prepare_fish": [
+                1047,
+                0,
+                482,
+                1440
+            ],
+            "fish_tolerance": [
+                851,
+                125,
+                70,
+                53
+            ],
+            "success": [
+                820,
+                62,
+                30,
+                99
+            ],
+            "except": [
+                2309,
+                245,
+                252,
+                371
+            ]
+        },
+        "paths": {
+            "fish_sign": "img\\25601440\\dyz.png",
+            "prepare_fish": "img\\25601440\\zbdy.png",
+            "fish_tolerance": "img\\25601440\\ynl.png",
+            "except": "img\\25601440\\yc.png"
+        }
+    }
+}
