@@ -90,9 +90,9 @@ class ControlFish:
                     keyUp('a')
                     keyUp('d')
                     press('1')
-                    sleep(1.5)
+                    sleep(2.5)
                     click()
-                    sleep(1.5)
+                    sleep(2.5)
                     self.init()
                 elif defeat:
                     self.init()
