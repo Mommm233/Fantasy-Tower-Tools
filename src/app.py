@@ -236,20 +236,19 @@ if __name__ == '__main__':
     window = Ui_MainWindow([1145, 716], custom_stylesheet1)
     window.show()
     sys.exit(app.exec_())
-
 '''
 pyinstaller --uac-admin --icon=img\\fle.jpg --name=幻塔小工具 ./src/app.py ./src/button.py ./src/controlF.py ./src/controlFish.py ./src/identify.py ./src/secondWindow.py ./src/updateGameConfig.py --noconsole
 
-D:\Game\Hotta\Script\_internal\PyQt5\Qt5\plugins\platforms -> D:\Game\Hotta\Script\platforms
+D:\\Game\\Hotta\\Script\\_internal\\PyQt5\\Qt5\\plugins\\platforms -> D:\\Game\\Hotta\\Script\\platforms
 
-D:\Game\Hotta\Script\
-                     |\_internal
-                     |\img
-                     |\mod
-                     |\platforms
-                     |\tempMod
-                     |\config.json
-                     |\UnRAR.exe
-                     |\幻塔小工具.exe
+D:\\Game\\Hotta\\Script\\
+                     |\\_internal
+                     |\\img
+                     |\\mod
+                     |\\platforms
+                     |\\tempMod
+                     |\\config.json
+                     |\\UnRAR.exe
+                     |\\幻塔小工具.exe
 
 '''
