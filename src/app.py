@@ -1,50 +1,38 @@
 # pyqt界面类
-import json
-import sys
+import os, sys, subprocess
 import multiprocessing
 import psutil
+import json
 import qdarkstyle
-import subprocess
-from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QDesktopWidget, QLineEdit, QComboBox, QDialog, QSizePolicy, QSpacerItem
-from PyQt5.QtGui import QIcon, QPalette, QPixmap, QBrush
 from PyQt5.QtCore import QTimer
-from changeconfig import ChangeConfig
-from controlf import ControlF
-from controlfish import ControlFish
+from PyQt5.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget
+from PyQt5.QtGui import QIcon, QPalette, QPixmap, QBrush
+from button import Button
+from controlF import ControlF
+from controlFish import ControlFish
+from secondWindow import ModUI, ConfigInfoUI
+
+
 
 class Ui_MainWindow(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, rects: list[int], custom_stylesheet: str) -> None:
         super().__init__()
         with open("config.json", "r") as f:
             self.data = json.load(f)
-        # 设置样式
-        self.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(0, 0, 255, 100); /* 设置背景颜色为半透明的蓝色 */
-                color: white;
-                border: 1px solid #666;
-                padding: 5px 10px;
-                border-radius: 5px;
-                font-size: 30px;
-            }
+        self.rects = rects
 
-            QPushButton:hover {
-                background-color: #555;
-            }
-        """)
-        self.set_background()
-        self.init_ui()
+        # 多进程通信信号
         self.controlf_run = multiprocessing.Value('i', 1)
         self.controlfish_run = multiprocessing.Value('i', 0)
-
         self.controlf_process = multiprocessing.Process(target=ControlF().run, 
                                                     args=(self.controlf_run,)
-                                                    )
-        self.controlfish_process = multiprocessing.Process(target=ControlFish().run, 
-                                                    args=(self.controlfish_run,)
-                                                    )      
-        # self.control_process.daemon = True  # 设置为守护进程
+                                                    )  
         self.controlf_process.start()
+
+        self.resize(self.rects[0], self.rects[1])
+        # 设置样式
+        self.setStyleSheet(custom_stylesheet)
+        self.init_ui()
 
     # 设置窗口背景图片
     def set_background(self) -> None:
@@ -59,43 +47,27 @@ class Ui_MainWindow(QWidget):
 
     # 初始化ui部件
     def init_ui(self) -> None:
-        # 设置窗口的标题和大小
-        self.setWindowTitle('幻塔小工具')
-        self.resize(1145, 716)
+        self.set_background()
+        main_layout = QVBoxLayout(self)
+        layout = QHBoxLayout()
 
         # 创建按钮
-        self.controlf_button = QPushButton('F键: 1', self)
-        self.controlfish_button = QPushButton('钓鱼: 0', self)
-        self.config_info_button = QPushButton('配置信息', self)
-        self.enter_button = QPushButton('进入游戏', self)
-
-        # 设置按钮的大小策略，使其可以水平和垂直方向上都自动调整大小
-        self.controlf_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.controlfish_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.config_info_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.enter_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        # 按钮点击事件
-        self.controlf_button.clicked.connect(self.controlf_button_click)
-        self.controlfish_button.clicked.connect(self.controlfish_button_click)
-        self.config_info_button.clicked.connect(self.config_info_button_click)
-        self.enter_button.clicked.connect(self.enter_button_click)
-
-        # 创建垂直布局
-        main_layout = QVBoxLayout()
-        # 创建水平布局
-        layout = QHBoxLayout()
+        self.f_button = Button('F key: 1', set_size_policy_flag=True, on_click=self.f_button_click)
+        self.fish_button = Button('Fish: 0', set_size_policy_flag=True, on_click=self.fish_button_click)
+        self.mod_manage_button = Button('Mod Manage', set_size_policy_flag=True, on_click=self.mod_manage_button_click)
+        self.config_info_button = Button('Config Information', set_size_policy_flag=True, on_click=self.config_info_button_click)
+        self.enter_button = Button('进入游戏', set_size_policy_flag=True, on_click=self.enter_button_click)
 
         # 左侧部件
         left_widget = QWidget()
         left_layout = QVBoxLayout()
-        left_layout.addWidget(self.controlf_button)
+        left_layout.addWidget(self.f_button.get_button())
         left_widget.setLayout(left_layout)
 
         # 右侧部件
         right_widget = QWidget()
         right_layout = QVBoxLayout()
-        right_layout.addWidget(self.controlfish_button)
+        right_layout.addWidget(self.fish_button.get_button())
         right_widget.setLayout(right_layout)
 
         # 将左右部件添加到水平布局
@@ -104,16 +76,11 @@ class Ui_MainWindow(QWidget):
 
         # 将水平布局和下方按钮添加到垂直布局
         main_layout.addLayout(layout)
-        main_layout.addWidget(self.config_info_button)
-        main_layout.addWidget(self.enter_button)
+        main_layout.addWidget(self.mod_manage_button.get_button())
+        main_layout.addWidget(self.config_info_button.get_button())
+        main_layout.addWidget(self.enter_button.get_button())
 
-        # 将垂直布局设置到主窗口
-        self.setLayout(main_layout)
-
-        # 获取屏幕尺寸
-        screen = QDesktopWidget().screenGeometry()
-        # 将窗口移动到屏幕中间
-        self.move((screen.width() - self.width()) // 2, (screen.height() - self.height()) // 2)
+        self.setWindowTitle('幻塔小工具')
 
     # 更新进程
     def update_process(self) -> None:
@@ -127,37 +94,40 @@ class Ui_MainWindow(QWidget):
                                                         args=(self.controlf_run,)
                                                         )
         if self.controlfish_run.value:
-            if not self.controlfish_process.is_alive():
-                self.controlfish_process.start()
-        else:
-            if self.controlfish_process.is_alive():
-                self.controlfish_process.join()
             self.controlfish_process = multiprocessing.Process(target=ControlFish().run, 
-                                                        args=(self.controlfish_run,)
-                                                        )
+                                                    args=(self.controlfish_run,)
+                                                    )  
+            self.controlfish_process.start()
     
-    def controlf_button_click(self) -> None:
+    # 更新按钮文本
+    def update_button_text(self) -> None:
+        self.f_button.set_text(f'F Key: {self.controlf_run.value}')
+        self.fish_button.set_text(f'Fish: {self.controlfish_run.value}')
+
+    def update_widget_and_process(self) -> None:
+        self.update_button_text()
+        self.update_process()
+
+    def f_button_click(self) -> None:
         self.controlf_run.value = not self.controlf_run.value  
         if self.controlf_run.value:
             self.controlfish_run.value = 0
-            self.controlfish_button.setText(f'钓鱼: {self.controlfish_run.value}')
-        self.controlf_button.setText(f'F键: {self.controlf_run.value}')
-        self.update_process()
+        self.update_widget_and_process()
 
-    def controlfish_button_click(self) -> None:
+    def fish_button_click(self) -> None:
         self.controlfish_run.value = not self.controlfish_run.value  
         if self.controlfish_run.value:
             self.controlf_run.value = 0
-            self.controlf_button.setText(f'F键: {self.controlf_run.value}')
-        self.controlfish_button.setText(f'钓鱼: {self.controlfish_run.value}')
-        self.update_process()
+        self.update_widget_and_process()
+
+    def mod_manage_button_click(self) -> None:
+        ModUI([1600, 900], custom_stylesheet2).exec_()
 
     def config_info_button_click(self) -> None:
-        ConfigWindow().exec_()
+        ConfigInfoUI([801, 501], custom_stylesheet3).exec_()
 
     def enter_button_click(self) -> None:
         self.game_process = subprocess.Popen([self.data["game_path"]])
-        
         # 使用定时器定期检查EXE进程状态
         self.timer = QTimer()
         self.timer.timeout.connect(self.check_game_status)
@@ -176,7 +146,7 @@ class Ui_MainWindow(QWidget):
     def exit_qt(self) -> None:
         self.controlf_run.value = 0
         self.controlfish_run.value = 0
-        self.update_process()
+        self.update_widget_and_process()
         sys.exit()
 
     #  重写窗口的closeEvent方法来捕获关闭事件
@@ -184,15 +154,68 @@ class Ui_MainWindow(QWidget):
         self.exit_qt()
 
 
-class ConfigWindow(QDialog):
-    def __init__(self) -> None:
-        super().__init__()
-        with open("config.json", "r") as f:
-            self.data = json.load(f)
-        # 加载 qdarkstyle 样式表
-        dark_stylesheet = qdarkstyle.load_stylesheet(qt_api='pyqt5')
-        # 在 qdarkstyle 的基础上自定义字体大小
-        custom_stylesheet = dark_stylesheet + """
+
+
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))  
+    unrar_path = os.path.join(script_dir, 'unrar.exe')  
+    # 设置环境变量 PATH，以便包含 unrar.exe 的路径  
+    os.environ['PATH'] = os.pathsep.join([os.environ.get('PATH', ''), script_dir]) 
+
+    # 加载 qdarkstyle 样式表
+    dark_stylesheet = qdarkstyle.load_stylesheet(qt_api='pyqt5')
+    custom_stylesheet1 = """
+            QPushButton {
+                background-color: rgba(0, 0, 255, 100); /* 设置背景颜色为半透明的蓝色 */
+                color: white;
+                border: 1px solid #666;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 30px;
+            }
+
+            QPushButton:hover {
+                background-color: #555;
+            }
+        """
+    custom_stylesheet2 = dark_stylesheet + """
+        QLabel {
+            font-size: 25px; /* 设置 QLabel 的字体大小为 20px */
+        }
+        
+        QCheckBox {  
+                color: black; /* 设置文字颜色 */  
+                background-color: white; /* 设置背景颜色 */  
+            }  
+        
+        QCheckBox::indicator {  
+            width: 20px;  
+            height: 20px;  
+        }  
+
+        QCheckBox::indicator:unchecked {  
+            image: none; /* 移除默认的未选中图片 */  
+            background-color: lightgray; /* 设置未选中时的背景颜色 */  
+        }  
+
+        QCheckBox::indicator:checked {  
+            image: none; /* 移除默认的选中图片 */  
+            background-color: green; /* 设置选中时的背景颜色 */  
+        }  
+
+        QCheckBox::indicator:disabled {  
+            background-color: lightgray; /* 设置禁用时的背景颜色 */  
+        }  
+
+        QPushButton {
+            font-size: 25px;
+        }
+        /* 您可以根据需要为其他控件添加或修改样式 */
+    """
+    custom_stylesheet3 = dark_stylesheet + """
             QLabel {
                 font-size: 30px; /* 设置 QLabel 的字体大小为 30px */
             }
@@ -207,124 +230,14 @@ class ConfigWindow(QDialog):
             }
             /* 您可以根据需要为其他控件添加或修改样式 */
         """
-        # 设置暗黑样式
-        self.setStyleSheet(custom_stylesheet)
-        self.init_ui()
 
-    def init_ui(self) -> None:
-        # 设置窗口的标题和大小
-        self.setWindowTitle('配置信息')  
-        # 设置大小
-        self.resize(801, 501)
-
-        self.RTPC_Sound_Master_Volume_label = QLabel("主音量")
-        self.RTPC_Sound_Music_Volume_label = QLabel("背景音乐")
-        self.RTPC_Sound_SFX_Volume_label = QLabel("音效")
-        self.FullscreenMode_label = QLabel("全屏显示")
-        self.WindowsAAType_label = QLabel("抗锯齿")
-        self.FrameRateLimit_label = QLabel("帧数")
-        self.bEnableShadow_label = QLabel("阴影")
-        self.RayTracingQuality_label = QLabel("光线追踪")
-       
-        # 创建文本框
-        self.RTPC_Sound_Master_Volume_edit = QLineEdit()
-        self.RTPC_Sound_Music_Volume_edit = QLineEdit()
-        self.RTPC_Sound_SFX_Volume_edit = QLineEdit()
-        self.FrameRateLimit_edit = QLineEdit()
-        
-        # 创建组合框
-        self.FullscreenMode_combobox = QComboBox()
-        self.WindowsAAType_combobox = QComboBox()
-        self.bEnableShadow_combobox = QComboBox()
-        self.RayTracingQuality_combobox = QComboBox()
-
-        self.FullscreenMode_combobox.addItems(["0", "1"])
-        self.WindowsAAType_combobox.addItems(["None", "TAA", "SMAA", "DLSS"])
-        self.bEnableShadow_combobox.addItems(["False", "True"])
-        self.RayTracingQuality_combobox.addItems(["Disable", "Low", "Medium", "VeryHigh"])
-        
-        # 创建按钮
-        self.ok_button = QPushButton("OK", self)
-        self.ok_button.clicked.connect(self.ok_button_click)
-
-        # 设置控件的默认值
-        self.set_default_value()
-
-        # 设置布局
-        self.set_layout()
-
-        # 获取屏幕尺寸
-        screen = QDesktopWidget().screenGeometry()
-        # 将窗口移动到屏幕中间
-        self.move((screen.width() - self.width()) // 2, (screen.height() - self.height()) // 2)
-
-    def ok_button_click(self)-> None:
-        # 更新文本框的值到数据字典
-        self.data["game_change_content"]["RTPC_Sound_Master_Volume"] = self.RTPC_Sound_Master_Volume_edit.text()
-        self.data["game_change_content"]["RTPC_Sound_Music_Volume"] = self.RTPC_Sound_Music_Volume_edit.text()
-        self.data["game_change_content"]["RTPC_Sound_SFX_Volume"] = self.RTPC_Sound_SFX_Volume_edit.text()
-        self.data["game_change_content"]["FrameRateLimit"] = self.FrameRateLimit_edit.text()
-        
-        # 更新组合框的当前选项到数据字典
-        self.data["game_change_content"]["FullscreenMode"] = self.FullscreenMode_combobox.currentText()
-        self.data["game_change_content"]["WindowsAAType"] = self.WindowsAAType_combobox.currentText()
-        self.data["game_change_content"]["bEnableShadow"] = self.bEnableShadow_combobox.currentText()
-        self.data["game_change_content"]["RayTracingQuality"] = self.RayTracingQuality_combobox.currentText()
-        with open("config.json", "w", encoding="utf-8") as f:
-            json.dump(self.data, f, indent=4)  # indent 参数用于美化输出，可选)
-        
-        ChangeConfig(self.data).change()
-        
-        # 关闭 QDialog 界面
-        self.close() 
-
-    # 设置文本框、组合框默认值
-    def set_default_value(self)-> None:
-        self.RTPC_Sound_Master_Volume_edit.setText(self.data["game_change_content"]["RTPC_Sound_Master_Volume"])
-        self.RTPC_Sound_Music_Volume_edit.setText(self.data["game_change_content"]["RTPC_Sound_Music_Volume"])
-        self.RTPC_Sound_SFX_Volume_edit.setText(self.data["game_change_content"]["RTPC_Sound_SFX_Volume"])
-        self.FrameRateLimit_edit.setText(self.data["game_change_content"]["FrameRateLimit"])
-        self.FullscreenMode_combobox.setCurrentText(self.data["game_change_content"]["FullscreenMode"])
-        self.WindowsAAType_combobox.setCurrentText(self.data["game_change_content"]["WindowsAAType"])
-        self.bEnableShadow_combobox.setCurrentText(self.data["game_change_content"]["bEnableShadow"])
-        self.RayTracingQuality_combobox.setCurrentText(self.data["game_change_content"]["RayTracingQuality"])
-
-    # 辅助函数
-    def hlayout_add_widget(self, lable, widget):
-        hlayout = QHBoxLayout()
-        hlayout.addWidget(lable)
-        hlayout.addWidget(widget)
-        return hlayout
-
-    # 设置布局
-    def set_layout(self) -> None:
-        hlayouts = []
-        hlayouts.append(self.hlayout_add_widget(self.RTPC_Sound_Master_Volume_label, self.RTPC_Sound_Master_Volume_edit))
-        hlayouts.append(self.hlayout_add_widget(self.RTPC_Sound_Music_Volume_label, self.RTPC_Sound_Music_Volume_edit))
-        hlayouts.append(self.hlayout_add_widget(self.RTPC_Sound_SFX_Volume_label, self.RTPC_Sound_SFX_Volume_edit))
-        hlayouts.append(self.hlayout_add_widget(self.FrameRateLimit_label, self.FrameRateLimit_edit))
-        hlayouts.append(self.hlayout_add_widget(self.FullscreenMode_label, self.FullscreenMode_combobox))
-        hlayouts.append(self.hlayout_add_widget(self.WindowsAAType_label, self.WindowsAAType_combobox))
-        hlayouts.append(self.hlayout_add_widget(self.bEnableShadow_label, self.bEnableShadow_combobox))
-        hlayouts.append(self.hlayout_add_widget(self.RayTracingQuality_label, self.RayTracingQuality_combobox))
-        layout = QVBoxLayout()
-        for hlayout in hlayouts:
-            layout.addLayout(hlayout)
-        layout.addWidget(self.ok_button)
-        # 添加一个垂直方向的伸展因子，使控件在垂直方向上居中
-        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        layout.addItem(spacer)
-        self.setLayout(layout)
-
-
-if __name__ == '__main__':
-    multiprocessing.freeze_support()
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("img\\fle.jpg"))  # 替换 'icon.png' 为您的图标文件路径
-    window = Ui_MainWindow()
+    window = Ui_MainWindow([1145, 716], custom_stylesheet1)
     window.show()
     sys.exit(app.exec_())
 
 
-# pyinstaller --uac-admin --icon=img\\fle.jpg --name=幻塔小工具 ./src/app.py ./src/changeconfig.py ./src/controlf.py ./src/controlfish.py ./src/identify.py --noconsole
+# pyinstaller --uac-admin --icon=img\\fle.jpg --name=幻塔小工具 ./src/app.py ./src/button.py ./src/controlF.py ./src/controlFish.py ./src/identify.py ./src/secondWindow.py ./src/updateGameConfig.py --noconsole
     
+# "D:\Game\Hotta\Script\_internal\PyQt5\Qt5\plugins\platforms" -> D:\Game\Hotta\Script\platforms
