@@ -4,14 +4,27 @@
     "game_config_path": "C:\\Users\\...\\AppData\\Local\\Hotta\\Saved\\Config\\WindowsNoEditor\\GameUserSettings.ini",
     "game_process_name": "WmgpMobileGame.exe",
     "game_change_content": {
-        "RayTracingQuality": "Medium",
-        "RTPC_Sound_Master_Volume": "80",
+        "ResolutionSizeX": "1600",
+        "LastUserConfirmedResolutionSizeX": "1600",
+        "ResolutionSizeY": "900",
+        "LastUserConfirmedResolutionSizeY": "900",
+        "Screen_Settings": "\u539f\u753b",
+        "sg.ViewDistanceQuality": "4",
+        "sg.ShadowQuality": "4",
+        "sg.PostProcessQuality": "4",
+        "sg.TextureQuality": "4",
+        "sg.EffectsQuality": "4",
+        "sg.FoliageQuality": "4",
+        "sg.ShadingQuality": "4",
+        "sg.GraphicQuality": "4",
+        "RTPC_Sound_Master_Volume": "30",
         "RTPC_Sound_Music_Volume": "80",
         "RTPC_Sound_SFX_Volume": "80",
-        "bEnableShadow": "True",
-        "FullscreenMode": "1",
         "FrameRateLimit": "144",
-        "WindowsAAType": "DLSS"
+        "FullscreenMode": "1",
+        "WindowsAAType": "DLSS",
+        "bEnableShadow": "True",
+        "RayTracingQuality": "Low"
     },
     "ControlF": {
         "rect": [
@@ -67,5 +80,7 @@
             "fish_tolerance": "img\\25601440\\ynl.png",
             "except": "img\\25601440\\yc.png"
         }
-    }
+    },
+    "LinkName": "D:\\Game\\Hotta\\Client\\WindowsNoEditor\\Hotta\\Content\\PatchPaks\\mod",
+    "Mod": {}
 }
