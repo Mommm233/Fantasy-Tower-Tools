@@ -241,3 +241,4 @@ if __name__ == '__main__':
 # pyinstaller --uac-admin --icon=img\\fle.jpg --name=幻塔小工具 ./src/app.py ./src/button.py ./src/controlF.py ./src/controlFish.py ./src/identify.py ./src/secondWindow.py ./src/updateGameConfig.py --noconsole
     
 # "D:\Game\Hotta\Script\_internal\PyQt5\Qt5\plugins\platforms" -> D:\Game\Hotta\Script\platforms
+# UnRAR.exe -> D:\Game\Hotta\Script\UnRAR.exe
