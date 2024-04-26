@@ -144,12 +144,6 @@ class FIdentify(Identify):
 
     # 判断是否准备钓鱼
     def is_prepare_fish(self) -> bool:
-        [x, y, w, h] = self.rects["prepare_fish"]
-        img = self.screen_img[y:y+h, x:x+w]
-        
-        ok = self.check(self.rects["prepare_fish"], self.signs["prepare_fish"], threshold=0.6)
-        cv2.imwrite(f"img\\ppp\\is_prepare_fish{ok}.png", img)
-        return ok
         return self.check(self.rects["prepare_fish"], self.signs["prepare_fish"], threshold=0.6)
     
     # 判断是否有鱼耐力
