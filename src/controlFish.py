@@ -88,6 +88,7 @@ class ControlFish:
                 elif success:
                     keyUp('a')
                     keyUp('d')
+                    sleep(1)
                     press('1')
                     sleep(2.5)
                     click()
