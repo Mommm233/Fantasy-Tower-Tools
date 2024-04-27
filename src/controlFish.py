@@ -1,4 +1,5 @@
 # 控制钓鱼类
+import datetime
 import cv2
 import numpy as np
 import multiprocessing
@@ -59,6 +60,9 @@ class ControlFish:
             run: multiprocessing.Value
             ) -> None:
         
+        self.journal = open(r"log\{}_journal.log".format(datetime.datetime.now().strftime("%Y-%m-%d")), "a", encoding="utf-8")
+        s1 = time()
+
         control_white_bar_process = multiprocessing.Process(target=control_white_bar, 
                                                     args=(run, self.queue))
         while run.value:
@@ -74,6 +78,17 @@ class ControlFish:
 
             screen_img = self.fidentify.get_screen_img(active_window._rect)
             success, defeat, is_except, move_direction = self.fish.get_states(screen_img, time() - self.start_fish_time)
+
+            if time() - s1 > 0.5:
+                #journal_text = "----------------------------------------------------\n"
+                journal_text = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n"
+                journal_text += f"持续时间{int(time() - self.start_fish_time)}\n"
+                journal_text += f"success: {success}, defeat: {defeat}, is_except: {is_except}, move_direction: {move_direction}\n"
+                journal_text += f"准备钓鱼: {self.fish.prepare_fish}\n"
+                journal_text += f"有鱼耐力: {self.fish.have_fish_tolerance}\n"
+                journal_text += "----------------------------------------------------\n"
+                self.journal.write(journal_text)
+                s1 = time()
 
             if is_except:
                 run.value = 0
@@ -100,6 +115,8 @@ class ControlFish:
                 elif move_direction:
                     self.queue.put(move_direction)
                 # print(f"success: {success}", f"defeat: {defeat}", f"Time: {time() - self.start_fish_time}")
+
+        self.journal.close()
 
         if control_white_bar_process.is_alive():
             control_white_bar_process.join()
@@ -197,7 +214,7 @@ class Fish:
         
         if self.fidentify.is_success():
             return 1, 0, 0, move_direction 
-        elif Time >= 60:
+        elif Time >= 120:
             return 0, 1, 0, move_direction
         elif slider_left == -1 or white_bar_pos == -1:
             return 0, 0, 0, move_direction
