@@ -150,7 +150,8 @@ class ModUI(QDialog):
             if item:  
                 widget = item.widget()  
                 if widget:
-                    widget.setParent(None)
+                    widget.deleteLater()
+                    # widget.setParent(None)
                 else:
                     self.clear_item_of_layout(item.layout())
 
@@ -199,7 +200,12 @@ class ModUI(QDialog):
                 return
             
             self.extract_file(file_name)
+            temp_mod_dict = self.mod_dict
             self.mod_dict = self.get_mod_dict()
+            for k, v in temp_mod_dict.items():
+                if k in self.mod_dict:
+                    self.mod_dict[k].checkbox.setChecked(v.checkbox.isChecked())
+            self.save_selected_to_config()
             self.layout_show_mod(self.grid_layout)
 
     def add_mod_folder(self) -> None:
@@ -224,7 +230,12 @@ class ModUI(QDialog):
                 continue
             # print(foldername, des_path)
             shutil.copytree(foldername, des_path)
+        temp_mod_dict = self.mod_dict
         self.mod_dict = self.get_mod_dict()
+        for k, v in temp_mod_dict.items():
+            if k in self.mod_dict:
+                self.mod_dict[k].checkbox.setChecked(v.checkbox.isChecked())
+        self.save_selected_to_config()
         self.layout_show_mod(self.grid_layout)
 
     def delete_dir(self, path) -> None:
@@ -240,26 +251,33 @@ class ModUI(QDialog):
             if mod.is_checked():
                 remove_mod_dict[mod_path] = mod
   
-        self.mod_dict = self.get_mod_dict()
         self.mod_dict = {k: v for k, v in self.mod_dict.items() if k not in remove_mod_dict.keys()}
-        
+        # print(remove_mod_dict.keys())
         for k in remove_mod_dict.keys():
             if k in self.data["Mod"]:
                 del self.data["Mod"][k]
         with open("config.json", "w", encoding="utf-8") as f:
             json.dump(self.data, f, indent=4)  # indent 参数用于美化输出，可选)
+        
+        for path in remove_mod_dict.keys():  
+            self.delete_dir(path)
 
+        self.mod_dict = self.get_mod_dict()
+        # print(self.mod_dict.keys())
         self.layout_show_mod(self.grid_layout)
         self.grid_layout.setParent(self.container)
 
-        for path in remove_mod_dict.keys():  
-            self.delete_dir(path)
+        
 
     def mk_link(self) -> None:
         link_name = self.data["LinkName"]
         target = os.path.join(os.path.abspath('.'), "tempMod")
-        cmd = ["cmd.exe", "/C", "mklink", "/D", link_name, target] 
-        subprocess.call(cmd)
+        cmd1 = ["cmd.exe", "/C", "rd", "/S", "/Q", link_name]  
+        cmd2 = ["cmd.exe", "/C", "mklink", "/D", link_name, target] 
+        if os.path.isdir(link_name):  
+            # 执行命令删除目录及其内容    
+            subprocess.call(cmd1)  
+        subprocess.call(cmd2)
 
     def save_selected_to_config(self) -> None:
         temp_mod_dict: Dict[str, int] = {}
