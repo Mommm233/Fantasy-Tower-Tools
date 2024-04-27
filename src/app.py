@@ -247,6 +247,7 @@ D:\\Game\\Hotta\\Script\\
                      |\\mod
                      |\\platforms
                      |\\tempMod
+                     |\\log
                      |\\config.json
                      |\\UnRAR.exe
                      |\\幻塔小工具.exe
