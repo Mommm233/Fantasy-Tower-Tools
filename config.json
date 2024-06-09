@@ -168,7 +168,7 @@
         }
     },
     "Mod_Conf": {
-        "link_name": "D:\\Game\\Hotta\\Client\\WindowsNoEditor\\Hotta\\Content\\PatchPaks\\mod",
+        "link_name": "D:\\Game\\Hotta\\Client\\WindowsNoEditor\\Hotta\\Content\\PatchPaks\\Paks",
         "save_dir": "mod",
         "load_dir": "tempMod",
         "default_img_name": "fle.jpg",
